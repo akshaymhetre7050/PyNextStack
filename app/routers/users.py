@@ -16,13 +16,13 @@ user_collection = async_database.users  # Get the collection from the database
 
 
 async def user_exists(email: str = None, username: str = None) -> bool:
-    query = {}
+    conditions = []
     if email:
-        query["email"] = email
+        conditions.append({"email": email})
     if username:
-        query["username"] = username
-    if query:
-        return await user_collection.find_one({"$or": [query]}) is not None
+        conditions.append({"username": username})
+    if conditions:
+        return await user_collection.find_one({"$or": conditions}) is not None
     return False
 
 @router.get("/users/", response_model=List[User], dependencies=[Depends(check_permissions)])
