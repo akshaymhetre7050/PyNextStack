@@ -65,6 +65,9 @@
     <div class="fw-bold small text-uppercase text-muted mb-2">Contents</div>
     <ul class="nav flex-column">
       <li><a class="nav-link px-0 py-1" href="#summary">Summary</a></li>
+      <li><a class="nav-link px-0 py-1" href="#journey">What we did</a></li>
+      <li><a class="nav-link px-0 py-1" href="#agents">Agents &amp; skills run</a></li>
+      <li><a class="nav-link px-0 py-1" href="#achieved">What we achieved</a></li>
       <li><a class="nav-link px-0 py-1" href="#pipeline">Pipeline</a></li>
       <li><a class="nav-link px-0 py-1" href="#defect">Defect analysis</a></li>
       <li><a class="nav-link px-0 py-1" href="#rca">Root cause</a></li>
@@ -98,6 +101,151 @@
       <strong>Important caveat (verified live).</strong> The repo already has unique MongoDB indexes on <code>email</code> and <code>username</code>, so duplicate <em>documents</em> were never actually written. On <code>main</code> the real symptom is a generic <strong>500</strong> on duplicate registration, not the 200 that the Jira repro step suggested. After this fix the handler raises the intended 400, but <a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-3">TEST-3</a> (catch-all <code>except Exception</code>) still converts it to 500. <strong>TEST-3 must be merged for the user-visible message to change.</strong>
     </div>
   </div></div>
+</section>
+
+<!-- JOURNEY -->
+<section id="journey" class="mb-4">
+  <h2>What we did — end-to-end session timeline</h2>
+  <p class="small text-muted">All times are IST on 2026-10-26. Everything ran in one Claude Code session (model: Claude Opus 5.5) in VS Code, against the repo at <code>E:\Projects\java\PyNextStack</code>.</p>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th style="width:4%">#</th><th style="width:10%">≈ Time</th><th style="width:20%">Phase</th><th>What was done</th><th style="width:16%">Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>12:07</td><td><strong>Start the project</strong></td><td>Checked ports and processes. FastAPI (<code>uvicorn app.main:app</code>, :8000), Next.js (:3000), MongoDB (:27017) and Redis (:6379) were already running from this repo, so no restart was needed. Verified that <code>/</code>→404, <code>/docs</code>→401 (auth-protected) and Next.js→200.</td><td><span class="badge bg-success">Running</span></td></tr>
+      <tr><td>2</td><td>12:12</td><td><strong>Find real bugs</strong></td><td>Read <code>app/routers/users.py</code> and <code>register.py</code> using the tokensave code graph. Found 4 genuine defects in the code; none were invented.</td><td><span class="badge bg-success">4 bugs found</span></td></tr>
+      <tr><td>3</td><td>12:15</td><td><strong>Jira space</strong></td><td>The Atlassian MCP cannot create Jira projects, so the user was asked to choose and picked the existing <strong>TEST</strong> project on <code>cybage-team-ykaip9am.atlassian.net</code>.</td><td><span class="badge bg-info text-dark">TEST project</span></td></tr>
+      <tr><td>4</td><td>12:20</td><td><strong>Create Jira bugs</strong></td><td>Created 4 Bug issues, each with the file, function, repro steps, expected result and suggested fix. Linked TEST-3 ↔ TEST-4 and added a dependency comment on TEST-4.</td><td><span class="badge bg-success">TEST-2…TEST-5</span></td></tr>
+      <tr><td>5</td><td>12:25</td><td><strong>Workflow config</strong></td><td>Created <code>.claude/config.yaml</code>. Jira URL and project key came from the MCP, the Confluence space <code>SD</code> from the space list, and the GitHub repo from <code>git remote</code>. The base branch is <code>main</code> and the sonar key was left empty.</td><td><span class="badge bg-success">Config ready</span></td></tr>
+      <tr><td>6</td><td>12:30</td><td><strong>Agent 1 — Fix defect</strong></td><td>Ran <code>fix-defect.md</code> for TEST-2: Jira fetch, Confluence search, RCA, feature branch, 5-line fix, 11 tests (proven on main and on the fix), Bandit, commit, push.</td><td><span class="badge bg-success">Fixed &amp; pushed</span></td></tr>
+      <tr><td>7</td><td>12:55</td><td><strong>Live verification</strong></td><td>Reproduced the bug against the running unfixed API. It returned <strong>500, not 200</strong>, because unique indexes already exist. Test users were cleaned up and the RCA was corrected.</td><td><span class="badge bg-warning text-dark">RCA refined</span></td></tr>
+      <tr><td>8</td><td>13:00</td><td><strong>Agent 2 — Adversarial</strong></td><td>Five-lens devil's-advocate review of the branch diff.</td><td><span class="badge bg-warning text-dark">Ship with fixes</span></td></tr>
+      <tr><td>9</td><td>13:02</td><td><strong>Agent 3 — Code review 2</strong></td><td>Four-domain review (architecture, documentation, resilience, testing) of <code>main..branch</code>.</td><td><span class="badge bg-success">Approve</span></td></tr>
+      <tr><td>10</td><td>13:04</td><td><strong>Agent 4 — Code quality 01</strong></td><td>Ran the CQ-01…CQ-06 checks and the complexity gate on the changed Python functions.</td><td><span class="badge bg-success">Pass</span></td></tr>
+      <tr><td>11</td><td>13:08</td><td><strong>Reports, PR &amp; Jira</strong></td><td>Wrote the MD and HTML reports and pushed commit <code>b6db50a</code>. Prepared a pre-filled PR link (<code>gh</code> is not installed). Commented on TEST-2 and moved it to <strong>In Review</strong>.</td><td><span class="badge bg-success">Delivered</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Jira bugs created in this session</h3>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Key</th><th>Priority</th><th>Bug</th><th>Status now</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-2">TEST-2</a></td><td>Medium</td><td>Duplicate email/username check uses AND instead of OR</td><td><span class="badge bg-info text-dark">In Review</span> (fixed in this branch)</td></tr>
+      <tr><td><a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-3">TEST-3</a></td><td>Medium</td><td>HTTPExceptions (400/404) swallowed and returned as 500</td><td><span class="badge bg-secondary">To Do</span>. Recommended next fix.</td></tr>
+      <tr><td><a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-4">TEST-4</a></td><td>Low</td><td>404 message shows literal "{id}" (depends on TEST-3)</td><td><span class="badge bg-secondary">To Do</span></td></tr>
+      <tr><td><a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-5">TEST-5</a></td><td>High</td><td>Forgot-password leaks registered emails; hardcoded localhost reset link</td><td><span class="badge bg-secondary">To Do</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- AGENTS -->
+<section id="agents" class="mb-4">
+  <h2>Agents &amp; skills executed — how they ran and what they produced</h2>
+  <div class="alert alert-info small">
+    <strong>Execution manner.</strong> All four skill files were loaded as instructions and executed <strong>in sequence, inline, by the main Claude Code agent</strong>. No background subagents were spawned. The diff was small (≈120 code lines), so one reviewer with full context was more accurate than handing partial context to parallel agents. <code>code-review 2.md</code> prescribes four parallel domain subagents; its four domains were run one after another in the same session instead, and this deviation is noted here. Each review looked only at the branch diff <code>main..feature/TEST-2-duplicate-user-check</code>.
+  </div>
+
+  <div class="table-responsive">
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light">
+      <tr><th>#</th><th>Agent / skill</th><th>Source file</th><th>Role played</th><th>Manner of execution</th><th>Tools used</th><th>Outcome</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>fix-defect-agent</strong><br><span class="small text-muted">execution-agent · v2.0</span></td>
+        <td class="mono small">Feature-Application-Development/defect-fix/fix-defect.md</td>
+        <td>Senior engineer / defect-fix specialist</td>
+        <td class="small">12 steps in order. Prerequisites P1–P7 were checked first. Input was the Jira URL, normalised to <code>TEST-2</code>. The fix was kept surgical: no refactor, signature unchanged.</td>
+        <td class="small">Atlassian MCP (getAccessibleAtlassianResources, getJiraIssue, searchConfluenceUsingCql, addComment, getTransitions, transition) · tokensave (code search) · git · pytest + pytest-asyncio + mongomock-motor + pytest-html · Bandit · curl (live repro)</td>
+        <td class="small"><span class="badge bg-success">Success</span><br>5-line fix · 11 tests · 3→0 failures · Bandit clean · 2 commits pushed · Jira In Review. <span class="text-warning-emphasis">The PR step degraded to a pre-filled link because gh was missing.</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>adversarial-agent</strong><br><span class="small text-muted">pre-PR challenger</span></td>
+        <td class="mono small">Secure-Engineering-Code-Review/adversarial/SKILL.md</td>
+        <td>Senior engineer playing devil's advocate</td>
+        <td class="small">Phase 0 orient, then a 5-lens pass (Brevity, Readability, Performance, Security, Tests). Every finding has a WHAT/WHY/WHERE/HOW card. It checked surrounding context (unique indexes, exception handling) where the diff creates risk.</td>
+        <td class="small">git diff · tokensave literal search (found <code>create_indexes</code>) · pymongo index inspection</td>
+        <td class="small"><span class="badge bg-warning text-dark">SHIP WITH FIXES</span><br>0 P0 · 2 P1 · 3 P2. The P1s are pre-existing (TEST-3 and case-sensitive email) and are follow-ups, not defects in the diff. Produced 3 reports.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>code-review 2</strong><br><span class="small text-muted">4-domain reviewer</span></td>
+        <td class="mono small">Secure-Engineering-Code-Review/security/code-review 2.md</td>
+        <td>Principal engineer: architecture, documentation, resilience and testing reviewers</td>
+        <td class="small">Phase 1 diff extraction (merge-base <code>7546865</code>). Phase 1.5 lint: Prettier/ESLint N/A (no JS/TS), Bandit used instead. Phase 2: four domains run sequentially inline (adapted from parallel subagents). Phase 3: findings deduplicated and sorted. Phase 4: verdict. React/MUI-specific conventions were marked N/A.</td>
+        <td class="small">git diff/merge-base · Bandit · tokensave (frontend usage of <code>/register/</code>, <code>check_user_exists</code>)</td>
+        <td class="small"><span class="badge bg-success">APPROVE</span><br>0 Critical · 0 High · 2 Medium · 4 Low. No breaking change for the frontend.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>01-code-quality</strong><br><span class="small text-muted">standards gate</span></td>
+        <td class="mono small">Feature-Application-Development/coding-standards/01-code-quality.md</td>
+        <td>Quality gate (CC &gt; 20 = P0 block)</td>
+        <td class="small">CQ-01 metrics computed by hand for every changed function (cyclomatic, cognitive, length, nesting, params, returns), then the CQ-02…CQ-06 checklists. Output uses the standard ID/Severity/Location/Metric format.</td>
+        <td class="small">Source reading · Grep (line verification)</td>
+        <td class="small"><span class="badge bg-success">PASS</span><br>Max CC 4. 0 P0 · 0 P1 · 2 P2, both auto-fixable and deliberately not applied to keep the fix minimal.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Supporting tools &amp; integrations used across the session</h3>
+  <div class="row g-2 small">
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>Atlassian MCP (Jira + Confluence)</strong>Resolved the cloudId, listed projects and spaces, created 4 bugs, linked issues, searched Confluence, fetched TEST-2, added comments, transitioned status.</div></div>
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>tokensave code graph</strong>Symbol and literal search for <code>user_exists</code> callers, <code>create_index</code>, <code>UserRegistration</code>, the API prefix, and frontend usage, without broad file scans.</div></div>
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>git / GitHub</strong>Feature branch, 2 structured commits, push via the credential manager. PR via a pre-filled compare link (no <code>gh</code>).</div></div>
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>pytest stack</strong>pytest 9.1.1, pytest-asyncio, pytest-html, and mongomock-motor (an in-memory Mongo with real <code>$or</code> semantics), recorded in <code>requirements-dev.txt</code>.</div></div>
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>Bandit 1.9.4</strong>Stand-in for SonarQube, because <code>sonar.space</code> is empty and the SonarQube MCP connection timed out.</div></div>
+    <div class="col-md-4"><div class="card p-2 h-100"><strong>Live app (curl + pymongo)</strong>Reproduced the bug on the running API, inspected the unique indexes, and cleaned up the test users.</div></div>
+  </div>
+</section>
+
+<!-- ACHIEVED -->
+<section id="achieved" class="mb-4">
+  <h2>What we achieved</h2>
+  <div class="row g-3">
+    <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-body small">
+      <h3 class="mt-0">Delivered</h3>
+      <ul class="mb-0">
+        <li>The project stack was verified running: FastAPI, Next.js, MongoDB and Redis.</li>
+        <li>4 real, well-documented bugs logged in Jira (TEST-2…TEST-5), ready for automated fixing.</li>
+        <li>A reusable <code>.claude/config.yaml</code> for the AIDLC workflows.</li>
+        <li>TEST-2 fixed on a dedicated branch, with no unrelated changes committed.</li>
+        <li>The project's first real automated test suite (the repo previously had only an SMTP smoke test) and <code>requirements-dev.txt</code>.</li>
+        <li>3 independent review verdicts with no blockers.</li>
+        <li>Full traceability: Jira ↔ branch ↔ commits ↔ reports ↔ PR body.</li>
+      </ul>
+    </div></div></div>
+    <div class="col-md-6"><div class="card shadow-sm h-100"><div class="card-body small">
+      <h3 class="mt-0">Insights gained</h3>
+      <ul class="mb-0">
+        <li>The real impact of TEST-2 was a <strong>500 error</strong>, not duplicate accounts, because the unique indexes acted as a safety net. Live verification caught that the ticket's repro step was wrong.</li>
+        <li>TEST-3 is the gate for the user-visible behaviour of TEST-2 and TEST-4, so it should be fixed next.</li>
+        <li>A new risk was found: email uniqueness is case-sensitive.</li>
+        <li><code>code-review 2.md</code> is frontend-specific. A backend variant would improve future Python runs.</li>
+      </ul>
+    </div></div></div>
+  </div>
+  <h3>Workflow scorecard</h3>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Acceptance criterion (fix-defect.md)</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Jira fetched; Defect Analysis Card with root cause</td><td>✅</td></tr>
+      <tr><td>Confluence searched; result noted</td><td>✅ (no relevant pages)</td></tr>
+      <tr><td>Language detected; structure explored</td><td>✅ Python / FastAPI</td></tr>
+      <tr><td>Feature branch from up-to-date base</td><td>✅</td></tr>
+      <tr><td>Defective code located (file, method, line)</td><td>✅ users.py:18-26</td></tr>
+      <tr><td>Callers identified and verified safe</td><td>✅ 3 callers</td></tr>
+      <tr><td>Minimal surgical fix</td><td>✅ +5/−5</td></tr>
+      <tr><td>Regression, happy path and edge case tests</td><td>✅ 3 + 3 + 5</td></tr>
+      <tr><td>Tests run and passing</td><td>✅ 11/11</td></tr>
+      <tr><td>SAST clean</td><td>✅ Bandit (Sonar not configured)</td></tr>
+      <tr><td>Structured commit; branch pushed</td><td>✅</td></tr>
+      <tr><td>PR raised</td><td>⚠️ Pre-filled link; needs one click (gh not installed)</td></tr>
+      <tr><td>Jira commented and transitioned</td><td>✅ In Review</td></tr>
+      <tr><td>Code change report MD + HTML</td><td>✅</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- PIPELINE -->
