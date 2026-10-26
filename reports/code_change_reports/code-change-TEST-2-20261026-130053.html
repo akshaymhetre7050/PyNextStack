@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEST-2 Fix Report</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  :root { --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; }
+  body { background: #f5f7fa; font-size: .95rem; }
+  .hero { background: linear-gradient(135deg,#1f2a44,#34507a); color:#fff; }
+  .hero a { color:#cfe1ff; }
+  .kpi { border:0; border-left:4px solid var(--bs-primary); }
+  .kpi .v { font-size:1.6rem; font-weight:700; line-height:1.1; }
+  .card { border-radius:.6rem; }
+  section { scroll-margin-top: 70px; }
+  h2 { font-size:1.25rem; font-weight:700; margin-bottom:.9rem; }
+  h3 { font-size:1.02rem; font-weight:700; margin-top:1.1rem; }
+  code, pre, .mono { font-family: var(--mono); font-size:.84rem; }
+  pre.diff { background:#0d1117; color:#c9d1d9; padding:1rem; border-radius:.5rem; overflow-x:auto; }
+  pre.diff .add { color:#7ee787; display:block; background:rgba(46,160,67,.15); }
+  pre.diff .del { color:#ffa198; display:block; background:rgba(248,81,73,.15); }
+  pre.diff .hunk { color:#79c0ff; display:block; }
+  .card-defect { font-family: var(--mono); font-size:.84rem; background:#fff; white-space:pre-wrap; }
+  .table { font-size:.88rem; }
+  .table td, .table th { vertical-align: top; }
+  .finding { border-left:4px solid #adb5bd; }
+  .finding.p0 { border-color:#dc3545; } .finding.p1 { border-color:#fd7e14; } .finding.p2 { border-color:#0dcaf0; }
+  .risk-low { background:#e8f5e9 !important; } .risk-med { background:#fff4e5 !important; } .risk-high { background:#fdecea !important; }
+  nav.toc a { font-size:.85rem; }
+  .flow .step { flex:1 1 150px; }
+  .step .num { width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700; }
+</style>
+</head>
+<body>
+
+<header class="hero py-4 mb-4">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <div class="small text-uppercase opacity-75">AIDLC Defect Fix &amp; Review Pipeline · PyNextStack</div>
+        <h1 class="h3 fw-bold mt-1 mb-2">TEST-2 — Duplicate email/username check uses AND instead of OR</h1>
+        <div class="small">
+          Jira: <a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-2">TEST-2</a> ·
+          Branch: <code class="text-white">feature/TEST-2-duplicate-user-check</code> ·
+          Base: <code class="text-white">main @ 7546865</code> ·
+          Generated: 2026-10-26 13:00:53 IST
+        </div>
+        <div class="small mt-1 opacity-75">Skills executed: fix-defect.md → adversarial/SKILL.md → security/code-review 2.md → coding-standards/01-code-quality.md</div>
+      </div>
+      <div class="text-end">
+        <span class="badge bg-warning text-dark fs-6">P3-Medium</span>
+        <span class="badge bg-info text-dark fs-6">In Review</span>
+        <div class="mt-2"><span class="badge bg-success fs-6">Fix verified · 11/11 tests</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container pb-5">
+<div class="row g-4">
+
+<nav class="col-lg-2 d-none d-lg-block toc">
+  <div class="position-sticky" style="top:1rem">
+    <div class="fw-bold small text-uppercase text-muted mb-2">Contents</div>
+    <ul class="nav flex-column">
+      <li><a class="nav-link px-0 py-1" href="#summary">Summary</a></li>
+      <li><a class="nav-link px-0 py-1" href="#pipeline">Pipeline</a></li>
+      <li><a class="nav-link px-0 py-1" href="#defect">Defect analysis</a></li>
+      <li><a class="nav-link px-0 py-1" href="#rca">Root cause</a></li>
+      <li><a class="nav-link px-0 py-1" href="#fix">Fix (before → after)</a></li>
+      <li><a class="nav-link px-0 py-1" href="#impact">Impact analysis</a></li>
+      <li><a class="nav-link px-0 py-1" href="#tests">Tests</a></li>
+      <li><a class="nav-link px-0 py-1" href="#sast">SAST</a></li>
+      <li><a class="nav-link px-0 py-1" href="#adversarial">Adversarial review</a></li>
+      <li><a class="nav-link px-0 py-1" href="#codereview">Code review 2</a></li>
+      <li><a class="nav-link px-0 py-1" href="#quality">Code quality 01</a></li>
+      <li><a class="nav-link px-0 py-1" href="#delivery">Git, PR &amp; Jira</a></li>
+      <li><a class="nav-link px-0 py-1" href="#followups">Follow-ups</a></li>
+      <li><a class="nav-link px-0 py-1" href="#artifacts">Artifacts</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="col-lg-10">
+
+<!-- SUMMARY -->
+<section id="summary" class="mb-4">
+  <div class="row g-3">
+    <div class="col-6 col-md-3"><div class="card kpi shadow-sm p-3"><div class="text-muted small">Lines changed (fix)</div><div class="v">+5 / −5</div><div class="small">1 function</div></div></div>
+    <div class="col-6 col-md-3"><div class="card kpi shadow-sm p-3" style="border-color:#198754"><div class="text-muted small">Tests after fix</div><div class="v text-success">11 / 11</div><div class="small">passed</div></div></div>
+    <div class="col-6 col-md-3"><div class="card kpi shadow-sm p-3" style="border-color:#dc3545"><div class="text-muted small">Same tests on main</div><div class="v text-danger">3 fail</div><div class="small">regression proven</div></div></div>
+    <div class="col-6 col-md-3"><div class="card kpi shadow-sm p-3" style="border-color:#6f42c1"><div class="text-muted small">Blocking findings</div><div class="v">0</div><div class="small">P0 / Critical</div></div></div>
+  </div>
+  <div class="card shadow-sm mt-3"><div class="card-body">
+    <p class="mb-2"><strong>Outcome.</strong> <code>user_exists()</code> now detects an existing user when <em>either</em> the email or the username is taken. The fix is 5 lines and is covered by 11 new pytest tests. These tests were run against both the unfixed <code>main</code> (3 regression tests fail) and the fix (all pass). Three reviews found no blockers.</p>
+    <div class="alert alert-warning mb-0 small">
+      <strong>Important caveat (verified live).</strong> The repo already has unique MongoDB indexes on <code>email</code> and <code>username</code>, so duplicate <em>documents</em> were never actually written. On <code>main</code> the real symptom is a generic <strong>500</strong> on duplicate registration, not the 200 that the Jira repro step suggested. After this fix the handler raises the intended 400, but <a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-3">TEST-3</a> (catch-all <code>except Exception</code>) still converts it to 500. <strong>TEST-3 must be merged for the user-visible message to change.</strong>
+    </div>
+  </div></div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" class="mb-4">
+  <h2>Pipeline execution</h2>
+  <div class="d-flex flex-wrap gap-2 flow">
+    <div class="card step shadow-sm p-3"><div><span class="num bg-success text-white">1</span> <strong>Fix defect</strong></div><div class="small text-muted mt-1">Jira → RCA → fix → tests → SAST → commit → push → Jira</div><span class="badge bg-success mt-2">Done</span></div>
+    <div class="card step shadow-sm p-3"><div><span class="num bg-success text-white">2</span> <strong>Adversarial</strong></div><div class="small text-muted mt-1">5-lens pre-PR challenge</div><span class="badge bg-warning text-dark mt-2">Ship with fixes</span></div>
+    <div class="card step shadow-sm p-3"><div><span class="num bg-success text-white">3</span> <strong>Code review 2</strong></div><div class="small text-muted mt-1">4 domains on branch diff</div><span class="badge bg-success mt-2">Approve</span></div>
+    <div class="card step shadow-sm p-3"><div><span class="num bg-success text-white">4</span> <strong>Code quality 01</strong></div><div class="small text-muted mt-1">CQ-01…CQ-06 gate</div><span class="badge bg-success mt-2">Pass</span></div>
+    <div class="card step shadow-sm p-3"><div><span class="num bg-warning text-dark">5</span> <strong>Pull request</strong></div><div class="small text-muted mt-1">gh CLI not installed</div><span class="badge bg-warning text-dark mt-2">Pre-filled link</span></div>
+  </div>
+
+  <h3>Prerequisite checks (fix-defect.md)</h3>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>#</th><th>Check</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>P1</td><td>Config loaded from <code>.claude/config.yaml</code></td><td><span class="badge bg-success">Pass</span> jira, confluence, github present; <code>sonar.space</code> empty</td></tr>
+      <tr><td>P2</td><td>Jira issue exists</td><td><span class="badge bg-success">Pass</span> TEST-2</td></tr>
+      <tr><td>P3</td><td>Issue type is Bug</td><td><span class="badge bg-success">Pass</span> Bug</td></tr>
+      <tr><td>P4</td><td>Status not Done/Closed</td><td><span class="badge bg-success">Pass</span> To Do</td></tr>
+      <tr><td>P5</td><td>GitHub CLI authenticated</td><td><span class="badge bg-warning text-dark">Not available</span> <code>gh</code> not installed; git push via credential manager works</td></tr>
+      <tr><td>P6</td><td>Branch not on remote</td><td><span class="badge bg-success">Pass</span></td></tr>
+      <tr><td>P7</td><td>Base branch up to date</td><td><span class="badge bg-success">Pass</span> <code>main</code> = <code>origin/main</code></td></tr>
+    </tbody>
+  </table>
+  <p class="small text-muted mb-0">Language detected: <strong>Python 3.14.7 / FastAPI 0.110 / Motor</strong> (requirements.txt). There is no pyproject.toml, so pytest was chosen as the test framework.</p>
+</section>
+
+<!-- DEFECT -->
+<section id="defect" class="mb-4">
+  <h2>Defect analysis card</h2>
+<div class="card shadow-sm"><div class="card-body card-defect">DEFECT ANALYSIS — TEST-2
+──────────────────────────────────────────────────────────
+Summary     : user_exists() treats "email OR username taken" as "email AND username taken"
+Priority    : P3-Medium
+Affected    : app/routers/users.py → user_exists() (lines 18-26)
+Root Cause  : single-element $or wrapping one dict with both fields ⇒ logical AND
+Stack Trace : None provided (logic defect, no exception)
+Expected    : 400 "The email or username is already in use." when EITHER field exists
+Regression  : No existing test (tests/tests.py only had an SMTP smoke test)
+──────────────────────────────────────────────────────────
+Confluence  : No relevant pages in space SD (only a Saleor overview)</div></div>
+</section>
+
+<!-- RCA -->
+<section id="rca" class="mb-4">
+  <h2>Root cause</h2>
+  <div class="card shadow-sm"><div class="card-body">
+    <ol class="mb-3">
+      <li><strong>What is wrong:</strong> <code>user_exists</code> built <code>{"$or": [{"email": e, "username": u}]}</code>.</li>
+      <li><strong>Why it is wrong:</strong> a <code>$or</code> with one element is the same as that element alone, and a dict with two keys means "both match". The query was an AND.</li>
+      <li><strong>Correct behaviour:</strong> <code>{"$or": [{"email": e}, {"username": u}]}</code>, so a match on either field is detected.</li>
+      <li><strong>Impact scope:</strong> three callers: <code>register.create_user</code>, <code>users.create_user</code>, <code>users.check_user_exists</code>.</li>
+    </ol>
+    <h3>Live reproduction on unfixed <code>main</code> (running server, port 8000)</h3>
+    <table class="table table-sm table-bordered">
+      <thead class="table-light"><tr><th>Step</th><th>Request</th><th>Response</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="mono">POST /api/v1/register/ {username: tst2a, email: tst2@example.com}</td><td><span class="badge bg-success">200</span> user created</td></tr>
+        <tr><td>2</td><td class="mono">POST /api/v1/register/ {username: tst2b, email: tst2@example.com}</td><td><span class="badge bg-danger">500</span> "An error occurred while creating the user."</td></tr>
+        <tr><td>3</td><td>Mongo count for tst2@example.com</td><td>1 document (the unique index <code>email_1</code> blocked the duplicate)</td></tr>
+      </tbody>
+    </table>
+    <p class="small text-muted mb-0">Test users were deleted afterwards. The 500 happens because <code>user_exists</code> wrongly returned <code>False</code>, <code>insert_one</code> then raised <code>DuplicateKeyError</code>, and the catch-all turned that into a 500.</p>
+  </div></div>
+</section>
+
+<!-- FIX -->
+<section id="fix" class="mb-4">
+  <h2>Fix (before → after)</h2>
+<pre class="diff"><span class="hunk">@@ app/routers/users.py:18 @@ async def user_exists(email: str = None, username: str = None) -&gt; bool:</span><span class="del">-    query = {}</span><span class="add">+    conditions = []</span>     if email:
+<span class="del">-        query["email"] = email</span><span class="add">+        conditions.append({"email": email})</span>     if username:
+<span class="del">-        query["username"] = username</span><span class="del">-    if query:</span><span class="del">-        return await user_collection.find_one({"$or": [query]}) is not None</span><span class="add">+        conditions.append({"username": username})</span><span class="add">+    if conditions:</span><span class="add">+        return await user_collection.find_one({"$or": conditions}) is not None</span>     return False</pre>
+
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>File</th><th>Location</th><th>Before (defective)</th><th>After (fixed)</th><th>Reason</th></tr></thead>
+    <tbody><tr><td class="mono">app/routers/users.py</td><td class="mono">user_exists:19-25</td><td class="mono">{"$or": [query]}</td><td class="mono">{"$or": conditions}</td><td>One disjunct per field means a match on either field is detected</td></tr></tbody>
+  </table>
+
+  <h3>Behaviour matrix (seed: alice / alice@example.com)</h3>
+  <table class="table table-sm table-bordered bg-white text-center">
+    <thead class="table-light"><tr><th>email</th><th>username</th><th>Before</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">alice@example.com</td><td class="mono">bob</td><td class="table-danger">False ❌</td><td class="table-success">True</td></tr>
+      <tr><td class="mono">bob@example.com</td><td class="mono">alice</td><td class="table-danger">False ❌</td><td class="table-success">True</td></tr>
+      <tr><td class="mono">alice@example.com</td><td class="mono">alice</td><td>True</td><td class="table-success">True</td></tr>
+      <tr><td class="mono">bob@example.com</td><td class="mono">bob</td><td>False</td><td class="table-success">False</td></tr>
+      <tr><td class="mono">alice@example.com</td><td>—</td><td>True</td><td class="table-success">True</td></tr>
+      <tr><td>—</td><td class="mono">alice</td><td>True</td><td class="table-success">True</td></tr>
+      <tr><td>— / ""</td><td>— / ""</td><td>False</td><td class="table-success">False</td></tr>
+      <tr><td class="mono">Alice@Example.com</td><td class="mono">bob</td><td>False</td><td class="table-warning">False ⚠️ case-sensitive (follow-up)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- IMPACT -->
+<section id="impact" class="mb-4">
+  <h2>Impact analysis</h2>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Caller</th><th>Endpoint</th><th>Risk</th><th>Verified safe?</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="risk-med"><td class="mono">register.create_user</td><td class="mono">POST /api/v1/register/</td><td>Medium</td><td>✅ Yes</td><td>Now raises 400 before attempting the insert. The 400 is still converted to 500 by TEST-3.</td></tr>
+      <tr class="risk-med"><td class="mono">users.create_user</td><td class="mono">POST /api/v1/users/</td><td>Medium</td><td>✅ Yes</td><td>Same TEST-3 caveat.</td></tr>
+      <tr class="risk-low"><td class="mono">users.check_user_exists</td><td class="mono">GET /api/v1/check_user_exists</td><td>Low</td><td>✅ Yes</td><td>Now returns <code>true</code> correctly. It is JWT-protected, and the Next.js frontend does not call it.</td></tr>
+    </tbody>
+  </table>
+  <p class="small text-muted mb-0">The function signature and <code>bool</code> return contract are unchanged. No frontend change is required: <code>nextjs/src/api/endpoints.js</code> only calls <code>/register/</code>.</p>
+</section>
+
+<!-- TESTS -->
+<section id="tests" class="mb-4">
+  <h2>Unit tests — <code>tests/test_users.py</code></h2>
+  <p class="small">pytest 9.1.1 + pytest-asyncio 1.4.1 on Python 3.14.7. The Mongo collection is replaced with in-memory <strong>mongomock-motor</strong>, so real <code>$or</code> semantics are evaluated. HTTP tests go through the real FastAPI router via <code>httpx.ASGITransport</code>.</p>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>#</th><th>Test</th><th>Type</th><th>On main</th><th>On fix</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="mono">test_user_exists_existing_email_new_username_returns_true</td><td><span class="badge bg-danger">Regression</span></td><td><span class="badge bg-danger">FAIL</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>2</td><td class="mono">test_user_exists_new_email_existing_username_returns_true</td><td><span class="badge bg-danger">Regression</span></td><td><span class="badge bg-danger">FAIL</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>3</td><td class="mono">test_check_user_exists_endpoint_existing_email_new_username_returns_true</td><td><span class="badge bg-danger">Regression</span></td><td><span class="badge bg-danger">FAIL</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>4</td><td class="mono">test_user_exists_both_fields_match_returns_true</td><td><span class="badge bg-primary">Happy path</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>5</td><td class="mono">test_user_exists_new_email_and_username_returns_false</td><td><span class="badge bg-primary">Happy path</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>6</td><td class="mono">test_check_user_exists_endpoint_new_user_returns_false</td><td><span class="badge bg-primary">Happy path</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>7</td><td class="mono">test_user_exists_email_only_existing_returns_true</td><td><span class="badge bg-secondary">Edge case</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>8</td><td class="mono">test_user_exists_username_only_existing_returns_true</td><td><span class="badge bg-secondary">Edge case</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>9</td><td class="mono">test_user_exists_no_arguments_returns_false</td><td><span class="badge bg-secondary">Edge case</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>10</td><td class="mono">test_user_exists_empty_strings_returns_false</td><td><span class="badge bg-secondary">Edge case</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+      <tr><td>11</td><td class="mono">test_check_user_exists_endpoint_no_params_returns_400</td><td><span class="badge bg-secondary">Edge case</span></td><td><span class="badge bg-success">PASS</span></td><td><span class="badge bg-success">PASS</span></td></tr>
+    </tbody>
+    <tfoot><tr class="fw-bold"><td colspan="3">Total</td><td class="text-danger">3 failed / 8 passed</td><td class="text-success">11 passed / 0 failed</td></tr></tfoot>
+  </table>
+  <p class="small mb-0">Run locally: <code>pip install -r requirements-dev.txt &amp;&amp; pytest tests/test_users.py -v</code> · pytest-html report: <code>reports/unit_test_reports/TEST-2/test-report.html</code></p>
+</section>
+
+<!-- SAST -->
+<section id="sast" class="mb-4">
+  <h2>SAST</h2>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Tool</th><th>Scope</th><th>High</th><th>Medium</th><th>Low</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>SonarQube</td><td>—</td><td colspan="3" class="text-muted">Not run: <code>sonar.space</code> is empty in config, and the SonarQube MCP failed to connect</td><td><span class="badge bg-secondary">Skipped</span></td></tr>
+      <tr><td>Bandit 1.9.4</td><td class="mono">app/routers/users.py</td><td>0</td><td>0</td><td>0</td><td><span class="badge bg-success">Clean</span></td></tr>
+      <tr><td>Bandit 1.9.4</td><td class="mono">tests/test_users.py</td><td>0</td><td>0</td><td>13</td><td><span class="badge bg-success">Accepted</span> all B101 <code>assert_used</code>, which is expected in pytest</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ADVERSARIAL -->
+<section id="adversarial" class="mb-4">
+  <h2>Adversarial review <span class="badge bg-warning text-dark align-middle">SHIP WITH FIXES</span></h2>
+  <table class="table table-sm table-bordered bg-white w-auto">
+    <thead class="table-light"><tr><th>Lens</th><th>Status</th><th>Findings</th></tr></thead>
+    <tbody>
+      <tr><td>Brevity &amp; DRY</td><td>🟢 Clean</td><td>0</td></tr>
+      <tr><td>Readability &amp; Naming</td><td>🟡 Minor</td><td>1</td></tr>
+      <tr><td>Performance &amp; Complexity</td><td>🟢 Clean</td><td>0</td></tr>
+      <tr><td>Security &amp; Robustness</td><td>🟡 Minor</td><td>3</td></tr>
+      <tr><td>Test Coverage</td><td>🟡 Minor</td><td>1</td></tr>
+    </tbody>
+  </table>
+  <p class="small"><strong>Biggest risk if merged as-is:</strong> users still see a 500 on duplicate registration until TEST-3 is merged. The diff itself introduces no new risk.</p>
+
+  <div class="card finding p1 shadow-sm mb-2"><div class="card-body py-2">
+    <span class="badge bg-warning text-dark">P1 IMPORTANT</span> <span class="small text-muted">Security &amp; Robustness</span>
+    <div><strong>Fixed check is still not user-visible on create endpoints.</strong> <code>except Exception</code> in <code>register.py:61</code> / <code>users.py:115</code> swallows the 400. <em>How:</em> add <code>except HTTPException: raise</code> → <a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-3">TEST-3</a>.</div>
+  </div></div>
+  <div class="card finding p1 shadow-sm mb-2"><div class="card-body py-2">
+    <span class="badge bg-warning text-dark">P1 IMPORTANT</span> <span class="small text-muted">Security &amp; Robustness</span>
+    <div><strong>Email uniqueness is case-sensitive.</strong> <code>Alice@Example.com</code> ≠ <code>alice@example.com</code> in both the query and the unique index. <em>How:</em> lower-case emails on write and lookup, or use an index collation <code>{locale:'en', strength:2}</code> after a data check.</div>
+  </div></div>
+  <div class="card finding p2 shadow-sm mb-2"><div class="card-body py-2">
+    <span class="badge bg-info text-dark">P2 SUGGESTION</span> <span class="small text-muted">Security &amp; Robustness</span>
+    <div><strong>Check-then-insert race (TOCTOU).</strong> The unique index keeps data safe, but the losing request gets a 500. <em>How:</em> catch <code>DuplicateKeyError</code> and return 400.</div>
+  </div></div>
+  <div class="card finding p2 shadow-sm mb-2"><div class="card-body py-2">
+    <span class="badge bg-info text-dark">P2 SUGGESTION</span> <span class="small text-muted">Security &amp; Robustness</span>
+    <div><strong><code>/check_user_exists</code> is now an accurate enumeration oracle</strong> for any authenticated user. <em>How:</em> rate-limit it with Redis or restrict it with <code>check_permissions</code> (related to TEST-5).</div>
+  </div></div>
+  <div class="card finding p2 shadow-sm mb-2"><div class="card-body py-2">
+    <span class="badge bg-info text-dark">P2 SUGGESTION</span> <span class="small text-muted">Test Coverage / Naming</span>
+    <div><strong>No handler-level duplicate tests; implicit Optional hints.</strong> Add <code>test_register_duplicate_email_returns_400</code> together with TEST-3, and use <code>str | None = None</code>.</div>
+  </div></div>
+
+  <h3>What's working well</h3>
+  <ul class="small mb-0">
+    <li>Minimal, correct fix. The signature and the "no criteria → False" behaviour are preserved for all three callers.</li>
+    <li>The regression was proven by running the same suite on <code>main</code>: exactly the 3 regression tests fail.</li>
+    <li>The tests use a real-semantics Mongo double and the real FastAPI route, not mocked return values.</li>
+    <li>Truthy guards treat <code>""</code> as absent, so an empty string can't match users that lack the field. This is covered by a test.</li>
+  </ul>
+</section>
+
+<!-- CODE REVIEW 2 -->
+<section id="codereview" class="mb-4">
+  <h2>Code review 2 <span class="badge bg-success align-middle">APPROVE</span></h2>
+  <div class="alert alert-secondary small">That skill targets a React/MUI/TS component library. This diff is Python-only, so the frontend conventions (forwardRef, Storybook, RTL, lodash, Prettier/ESLint) are N/A. The four domains were applied to the Python code, in sequence (diff ≈120 code lines).</div>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Severity</th><th>Domain</th><th>Location</th><th>Problem</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge bg-warning text-dark">Medium</span></td><td>Architecture</td><td class="mono">app/routers/register.py:61</td><td>Catch-all swallows the 400, so duplicates still return 500 (verified live)</td><td>Re-raise HTTPException (TEST-3). See also users.py:115</td></tr>
+      <tr><td><span class="badge bg-warning text-dark">Medium</span></td><td>Architecture</td><td class="mono">app/routers/users.py:18</td><td>Case-sensitive email uniqueness</td><td>Normalise or use a collation index; raise a new bug</td></tr>
+      <tr><td><span class="badge bg-secondary">Low</span></td><td>Architecture</td><td class="mono">app/routers/users.py:18</td><td>Implicit Optional type hints</td><td><code>str | None = None</code></td></tr>
+      <tr><td><span class="badge bg-secondary">Low</span></td><td>Resilience</td><td class="mono">app/routers/register.py:28-50</td><td>TOCTOU race returns 500</td><td>Catch DuplicateKeyError → 400</td></tr>
+      <tr><td><span class="badge bg-secondary">Low</span></td><td>Documentation</td><td class="mono">app/routers/users.py:18</td><td>No docstring stating the OR contract</td><td>One-line docstring</td></tr>
+      <tr><td><span class="badge bg-secondary">Low</span></td><td>Testing</td><td class="mono">requirements-dev.txt:2-5</td><td>Unpinned test deps</td><td>Pin <code>~=</code> versions</td></tr>
+    </tbody>
+  </table>
+  <p class="small"><strong>Performance:</strong> both <code>$or</code> fields have unique indexes, so MongoDB uses an index union with no collection scan. <strong>Breaking change:</strong> only <code>/check_user_exists</code> output changes, and it now returns the correct answer. It has no frontend consumer.</p>
+  <table class="table table-sm table-bordered bg-white w-auto">
+    <thead class="table-light"><tr><th>Critical</th><th>High</th><th>Medium</th><th>Low</th><th>Total</th></tr></thead>
+    <tbody><tr class="text-center"><td>0</td><td>0</td><td>2</td><td>4</td><td><strong>6</strong></td></tr></tbody>
+  </table>
+</section>
+
+<!-- CODE QUALITY -->
+<section id="quality" class="mb-4">
+  <h2>Code quality — Standard 01 <span class="badge bg-success align-middle">PASS</span></h2>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Function</th><th>Cyclomatic</th><th>Cognitive</th><th>Lines</th><th>Nesting</th><th>Params</th><th>Returns</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">users.user_exists</td><td>4 / ≤10</td><td>3 / ≤15</td><td>8 / ≤30</td><td>1 / ≤3</td><td>2 / ≤4</td><td>2 / ≤4</td><td>🟢</td></tr>
+      <tr><td class="mono">fixtures (2)</td><td>1</td><td>0</td><td>4</td><td>≤1</td><td>1</td><td>≤1</td><td>🟢</td></tr>
+      <tr><td class="mono">test_* (11)</td><td>1</td><td>0</td><td>1–3</td><td>0</td><td>1</td><td>0</td><td>🟢</td></tr>
+    </tbody>
+  </table>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>ID</th><th>Severity</th><th>Location</th><th>What</th><th>Fix</th><th>Auto-fix</th></tr></thead>
+    <tbody>
+      <tr><td>CQ-02-001</td><td><span class="badge bg-info text-dark">P2</span></td><td class="mono">users.py:18:user_exists</td><td>Predicate lacks an <code>is_</code>/<code>has_</code> prefix (pre-existing name, 3 call sites)</td><td>Rename to <code>is_user_registered</code> in a separate refactor</td><td>YES</td></tr>
+      <tr><td>CQ-03-001</td><td><span class="badge bg-info text-dark">P2</span></td><td class="mono">test_users.py:44,54,63,82</td><td>Seed email literal repeated 4×</td><td>Reuse <code>EXISTING_USER["email"]</code></td><td>YES</td></tr>
+    </tbody>
+  </table>
+  <p class="small mb-0">CQ-04 dead code: none · CQ-05 smells: none · CQ-06: n/a. Gate (CC &gt; 20 → P0): <strong>not triggered</strong>. P2 items were left unchanged to keep the defect fix minimal.</p>
+</section>
+
+<!-- DELIVERY -->
+<section id="delivery" class="mb-4">
+  <h2>Git, pull request &amp; Jira</h2>
+  <table class="table table-sm table-bordered bg-white">
+    <tbody>
+      <tr><th class="table-light w-25">Branch</th><td class="mono">feature/TEST-2-duplicate-user-check (pushed to origin)</td></tr>
+      <tr><th class="table-light">Commits</th><td class="mono">2f6ccf7 fix(TEST-2): detect existing email OR username in user_exists<br>docs(TEST-2): add code change summary and review reports</td></tr>
+      <tr><th class="table-light">Pull request</th><td><span class="badge bg-warning text-dark">Pending manual click</span> GitHub CLI is not installed and no token is available. Open the pre-filled PR: <a href="https://github.com/akshaymhetre7050/PyNextStack/compare/main...feature/TEST-2-duplicate-user-check?quick_pull=1">compare main…feature/TEST-2-duplicate-user-check</a>. The body is in <code>reports/code_change_reports/PR-TEST-2.md</code>.</td></tr>
+      <tr><th class="table-light">Jira comment</th><td>Added to TEST-2 (RCA, fix, tests, SAST, branch, PR link)</td></tr>
+      <tr><th class="table-light">Jira status</th><td>To Do → <span class="badge bg-info text-dark">In Review</span></td></tr>
+      <tr><th class="table-light">Excluded from commits</th><td class="small">Pre-existing local changes were left unstaged: <code>app/db/mongoClient.py</code>, <code>.gitignore</code>, <code>nextjs/package-lock.json</code>, <code>requirements-py314.txt</code>, <code>.claude/</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FOLLOWUPS -->
+<section id="followups" class="mb-4">
+  <h2>Follow-ups</h2>
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-light"><tr><th>Priority</th><th>Item</th><th>Ticket</th></tr></thead>
+    <tbody>
+      <tr class="risk-high"><td>Next</td><td>Re-raise HTTPException in create/get/update handlers so duplicates return 400</td><td><a href="https://cybage-team-ykaip9am.atlassian.net/browse/TEST-3">TEST-3</a></td></tr>
+      <tr class="risk-med"><td>High</td><td>Case-insensitive email uniqueness (normalise + collation index + data check)</td><td>New bug suggested</td></tr>
+      <tr class="risk-low"><td>Low</td><td>Map DuplicateKeyError → 400; pin dev deps; docstring; rename to <code>is_user_registered</code></td><td>Tech debt</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ARTIFACTS -->
+<section id="artifacts" class="mb-2">
+  <h2>Artifacts</h2>
+  <ul class="small mono mb-0">
+    <li>reports/code_change_reports/code-change-TEST-2-20261026-130053.md / .html (this report)</li>
+    <li>reports/code_change_reports/PR-TEST-2.md</li>
+    <li>reports/unit_test_reports/TEST-2/test-summary-TEST-2-20261026-124804.md, test-report.html</li>
+    <li>reports/adversarial/adversarial_skill_report_2026-10-26.md</li>
+    <li>reports/adversarial/adversarial_first_commit_detailed_report_2026-10-26.md</li>
+    <li>reports/adversarial/adversarial_blockers_commit_readiness_2026-10-26.md</li>
+    <li>reports/code-review-2/report-code-review-2-20261026-130053.md</li>
+    <li>reports/code-quality/report-01-code-quality-20261026-130053.md</li>
+  </ul>
+</section>
+
+</main>
+</div>
+</div>
+</body>
+</html>
